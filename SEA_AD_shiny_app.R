@@ -12,7 +12,7 @@ options(stringsAsFactors = F)
 
 # beta table coefficient path
 # change to fread
-#beta_file <- read.csv("/allen/programs/celltypes/workgroups/rnaseqanalysis/sarojaS/230810_SEA_AD_app/beta_coefficient_table.csv", header = T, sep = ",")
+beta_file <- read.csv("/allen/programs/celltypes/workgroups/rnaseqanalysis/sarojaS/230810_SEA_AD_app/beta_coefficient_table.csv", header = T, sep = ",")
 # Removed the plot as it will appear belo
 #beta_file_subset <- beta_file[,c(-1)]
 #beta_file_subset <- beta_file[c(1:50),]
@@ -98,46 +98,24 @@ server <- function(input, output, session){
     "Mean expression: (natural log UMIs per 10k plus 1)", sep = "<br>"))
     })
   
-  ## ---- Handle the selector Inputs to only show valid combinations
-  ## ---- Do this first to avoid weird quirks when read in new peak table.
-  ## For selected Species only load Dataset
-  #observe({
-   # datasetChoices = peakTables.df %>% filter(genome == input$speciesInput) %>% pull(dataset)
-   # updateSelectInput(session, 
-    #                  "datasetInput",
-     #                 choices = datasetChoices
-    #)})
   
-  ## For selected Species and Dataset only load levels
-  #observe({
-  #  annoChoices = peakTables.df %>% filter(genome == input$speciesInput & dataset == input$datasetInput) %>% pull(annotation)
-   # updateSelectInput(session, 
-   #                   "annotationInput",
-   #                   choices = annoChoices
-   # )})
   
-  ## ------ Handle the selection of a new peak table, lazy evaluation
   ##
   beta_table_selector <- eventReactive(input$openTable, {
     ##
     
-    beta_file <- read.csv("/allen/programs/celltypes/workgroups/rnaseqanalysis/sarojaS/230810_SEA_AD_app/beta_coefficient_table.csv", header = T, sep = ",")
+    #beta_file <- read.csv("/allen/programs/celltypes/workgroups/rnaseqanalysis/sarojaS/230810_SEA_AD_app/beta_coefficient_table_supertype.csv", header = T, sep = ",")
+    
     beta_file_subset <- beta_file
     colnames(beta_file_subset) <- c("Row.number","Gene","Taxonomy.Level","Population","all","early","late","Mean.expression","Comparative.Viewer","Pseudoprogression.Plot")
    
     if(input$Level == "All"){
       beta_table_show = beta_file_subset
-      #beta_table_show <- read.csv("/allen/programs/celltypes/workgroups/rnaseqanalysis/sarojaS/230810_SEA_AD_app/beta_coefficient_table.csv", header = T, sep = ",") 
-      #colnames(beta_table_show) <- c("Row.number","Gene","Taxonomy.Level","Population","all","early","late","Mean.expression","Comparative.Viewer","Pseudoprogression.Plot")
-      ##
       beta_table_show
     }else{
     beta_tabled_selected = beta_file_subset %>% filter(Taxonomy.Level == input$Level)
       beta_table_show = beta_tabled_selected
       beta_table_show
-    #Taxonomy.Level = input$Level 
-    # beta_table_show <- read.csv(paste0("/allen/programs/celltypes/workgroups/rnaseqanalysis/sarojaS/230810_SEA_AD_app/beta_coefficient_table_",Taxonomy.Level,".csv", collapse = ""), header = T, sep = ",") 
-    #colnames(beta_table_show) <- c("Row.number","Gene","Taxonomy.Level","Population","all","early","late","Mean.expression","Comparative.Viewer","Pseudoprogression.Plot")
     
     }
   })
