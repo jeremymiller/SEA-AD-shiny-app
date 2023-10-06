@@ -166,7 +166,9 @@ server <- function(input, output, session){
   
   output$PseudoProgressionImageOverview <- renderUI({
     if(length(input$table_rows_selected) != 0){
-      img(src = "https://sea-ad-single-cell-profiling.s3.amazonaws.com/MTG/RNAseq/pseudoprogression-plots/AHR/overview_subclass.jpg",width = "100%", height = "100%") 
+       s = input$table_rows_selected
+       Gene <- beta_table_selector()[s, ]$Gene
+      img(src = paste0("https://sea-ad-single-cell-profiling.s3.amazonaws.com/MTG/RNAseq/pseudoprogression-plots/",Gene,"/overview_subclass.jpg",collapse= ""),width = "100%", height = "100%") 
   }else{
     renderText({
       "Select class please"
