@@ -8,4 +8,5 @@ Shiny app for SEA-AD beta coefficient table
 - [ ] Add paragraph text
 - [ ] Speed improvement
 - [ ] Check on naming incosistencies between table and figure content (GABA vs Inh)
+- [ ] Spinner to appear after the open button is clicked
 
