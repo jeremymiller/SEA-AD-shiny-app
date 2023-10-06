@@ -7,4 +7,5 @@ Shiny app for SEA-AD beta coefficient table
 - [ ] Add population as a dropdown under subclass and supertype
 - [ ] Add paragraph text
 - [ ] Speed improvement
+- [ ] Check on naming incosistencies between table and figure content (GABA vs Inh)
 
