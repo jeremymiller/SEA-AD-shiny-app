@@ -7,7 +7,7 @@ Donor brain tissue sections from the middle temporal gyrus (MTG) are stained for
 Gene Expression
 Single nucleus RNA-sequencing was collected for ~1.7 million cells and used to define 151 sets of cells with distinct gene expression profiles (supertypes). We compare gene expression levels in cells from each supertype with continuous pseudo-progression scores to identify genes changes in AD.
 
-This tool organizes more than 6 million sets of images exploring every combination of gene and cell type at multiple taxonomy levels. We hope you find this tool useful. Please feel free to provide feedback at this link. 
+This tool organizes more than 6 million sets of images exploring every combination of gene and cell type at multiple taxonomy levels. We hope you find this tool useful. Please feel free to provide feedback at this [link](https://app.smartsheet.com/b/form/01c0ed3a74d14135bd68620a92bbd5ef). 
 
 Here is the link to the app, https://sea-ad.shinyapps.io/ad_gene_trajectories/.
 
