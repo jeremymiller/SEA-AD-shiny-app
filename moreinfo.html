@@ -1,0 +1,180 @@
+<div
+    style="
+        width: 70%;
+        height: 85%;
+        padding: 10px;
+        position: absolute;
+        top: 5%;
+        left: 20%;
+        display: flex;
+        flex-direction: column;
+        z-index: 1000;
+        background-color: #ecf0f5;
+        overflow: auto;
+        box-shadow: 4px 8px 8px hsl(0deg 0% 0% / 0.38);
+    "
+>
+    <h1 id="overview">Overview</h1>
+    <p>
+        Welcome to the AD Gene Expression Trajectory Viewer, a web application
+        for exploring how genes change expression with increasing Alzheimer’s
+        Disease pathology in different cell types. It relies on two key pieces
+        of information:
+    </p>
+
+    <h3 id="quantitative-neuropathology">Quantitative Neuropathology</h3>
+    <p>
+        Donor brain tissue sections from the middle temporal gyrus (MTG) are
+        stained for key pathological proteins and cell types of interest to
+        Alzheimer’s disease. We use machine learning to quantify the staining on
+        these images and define a single continuous pseudo-progression score
+        that can order donors along a trajectory from least AD pathology to most
+        AD pathology.
+    </p>
+
+    <h3 id="gene-expression">Gene Expression</h3>
+    <p>
+        Single nucleus RNA-sequencing was collected for ~1.7 million cells and
+        used to define 151 sets of cells with distinct gene expression profiles
+        (supertypes). We compare gene expression levels in cells from each
+        supertype with continuous pseudo-progression scores to identify genes
+        changes in AD.
+    </p>
+    <p>
+        This tool organizes more than 6 million sets of images exploring every
+        combination of gene and cell type at multiple taxonomy levels. We hope
+        you find this tool useful. Please feel free to provide feedback at
+        <a
+            href="https://app.smartsheet.com/b/form/01c0ed3a74d14135bd68620a92bbd5ef"
+        >
+            this link.</a
+        >
+    </p>
+
+    <h1 id="using-the-tool">Using the tool</h1>
+    <p>
+        The AD Gene Expression Trajectory Viewer is divided into three panels.
+    </p>
+
+    <ol>
+        <li>
+            <h3>
+                The left panel provides an entry point into the viewer at
+                different levels of the taxonomy.
+            </h3>
+        </li>
+        <p>
+            'All' shows all 6 million+ rows and can be quite slow, but is useful
+            for finding the most significant metrics for a single gene (e.g., In
+            which cell type does APOE change the most with AD progression?)
+        </p>
+        <p>
+            Class shows broad patterns across GABAergic neurons, glutamatergic
+            neurons, and non-neurons for each gene and is the fastest to load.
+            This option allows you to ask questions like Which genes show the
+            most significant disease affects late in disease in GABAergic
+            interneurons?
+        </p>
+        <p>
+            Subclass shows patterns across intermediate levels of resolution
+            (e.g., Astrocytes) and allows you to either identify genes with the
+            most significant patterns in cell population or find which cell
+            populations are most relevant for a specific gene relatively
+            quickly.
+        </p>
+        <p>
+            Supertype provides a more in-depth view of a specific subclass for
+            the 151 highest-resolution supertypes. If Supertype is chosen then
+            an additional dropdown will appear to select a single subclass. This
+            allows you to explore specific subpopulations of cells (e.g., What
+            are the most significant changes in disease in Microglia and which
+            supertypes are affected?)
+        </p>
+        <br />
+
+        <li>
+            <h3>
+                The top right panel shows the data including genes, cell types,
+                statistics, and links (details below). Most columns include
+                arrows for sorting ascending or descending by that column and a
+                box for filtering by string or numeric range. Click on a row to
+                view images in the bottom right panel. The following columns are
+                included in the data table:
+            </h3>
+        </li>
+        <p>
+            Gene <br />
+            HGNC gene symbol for the selected gene
+        </p>
+        <p>
+            Taxonomy Level <br />
+            Either Class, Subclass, or Supertype, as described above.
+        </p>
+        <p>
+            Population <br />
+            The name of the selected cell type (e.g., GABAergic, SST, or SST_1)
+        </p>
+        <p>
+            All, Early, and Late <br />
+            Beta coefficient indicating how much a gene changes across all of,
+            early, or late pseudoprogression in a given population. Positive
+            values indicate increases in AD, while negative values indicate
+            decreases.
+        </p>
+        <p>
+            Mean Expression <br />
+            Average expression level of the selected gene in the selected
+            population in natural log UMIs per 10k plus 1.
+        </p>
+        <p>
+            Comparative Viewer <br />
+            Link out to the corresponding view in the Comparative Viewer, a web
+            application that enables side by side comparison of gene expression
+            in matched cells for any gene, comparison with essential donor
+            metadata, and quantification of expression differences (using
+            different statistics).
+        </p>
+        <p>
+            Pseudoprogression Plot <br />
+            Link out to the full-resolution pseudoprogression plot for the
+            selected gene, including supertype resolution plots for every
+            subclass. A subset of the information in these plots are shown in
+            the bottom right panel.
+        </p>
+        <br />
+
+        <li>
+            <h3>
+                The bottom right panel shows visualizations of gene expression
+                and gene changes with pseudoprogression across different
+                populations. The data in the panel above are derived from the
+                information in these plots. Up to three plots are shown in this
+                section, and for all plots expression levels are scaled to the
+                natural log UMIs per 10k plus 1.
+            </h3>
+        </li>
+        <p>
+            Gene expression bar plots (upper left) show the expression levels of
+            the selected gene across subclasses. Each column is a subclass
+            (labeled), and each dot represents the mean expression of the cells
+            of a supertype in a single donor.
+        </p>
+        <p>
+            Gene trajectories by subclass (lower left) show the expression
+            change across disease pseudo-progression for each subclass, divided
+            into three plots by class. In each plot the x-axis shows continuous
+            donor pseudo-progression and each line represents the locally
+            weighted mean expression (LOWESS) of the supertypes within each
+            subclass, color-coded as indicated on the right. Grey lines
+            represent all subclasses not in that class.
+        </p>
+        <p>
+            Gene trajectories by supertype (right) show the same information,
+            but for the supertypes of a selected subclass, and is only shown for
+            subclass and supertype taxonomy levels. The same information is
+            shown in both plots, with the left plots color-coded by supertype
+            and the right plots color-coded by whether or not their abundances
+            also change with continuous donor pseudo-progression.
+        </p>
+    </ol>
+</div>
