@@ -27,9 +27,9 @@ ui <- dashboardPage(
   dashboardSidebar(
     verticalLayout(
       div(),
-      h6("Please select an option to begin.", style='padding-left: 20px; padding-bottom: 0px;margin-bottom: 0px;'),
+      h6("Please select an option and click open table to begin.", style='justify-self: center; padding-left: 10px; padding-right: 10px; padding-bottom: 0px;margin-bottom: 0px; text-align: center;'),
       ## Let the user filter tables to just one species
-      selectInput("Level", "Taxonomy Level", choices=c("All","Class","Subclass","Supertype"), selected="All", multiple=FALSE),
+      selectInput("Level", "Taxonomy Level", choices=c("All","Class","Subclass","Supertype"), selected="Class", multiple=FALSE),
       actionButton("openTable", 
                    "Open beta coefficent table",
                    style = "color: #fff; background-color: #27ae60; border-color: #fff; padding: 10px 20px 10px px; margin: 5px 5px 5px 20px; "),
@@ -41,13 +41,17 @@ ui <- dashboardPage(
                                  text-align: center;
                                  }"
     )
+    ),
+    div(
+      actionButton("showInfo","Show/Hide Info", style = "margin: 0px;"),
+      style="display: flex; align-content: center; justify-content: center; flex-wrap: wrap; padding-top: 10%"
     )
-  ),
+    ),
   ##
   dashboardBody(
     ## Peak table
     fluidRow(
-      tags$style(
+        tags$style(
         HTML(
           ".dataTables_wrapper .dataTables_filter {
               float: none;
@@ -66,7 +70,7 @@ ui <- dashboardPage(
              }
              ")
       ),
-      DT::dataTableOutput("table") %>% withSpinner(color = "#0dc5c1"),
+      DT::dataTableOutput('table') %>% withSpinner(color="#0dc5c1"),
       width = 12,
       height = 120,
       solidHeader = T,
@@ -78,7 +82,8 @@ ui <- dashboardPage(
                uiOutput("PseudoProgressionImage"))
         
       )
-    )
+    ),
+    htmlOutput('moreInfo')
   ),
 )
 
@@ -95,24 +100,40 @@ server <- function(input, output, session){
         ))
   })
   
+  openInfo <- reactiveVal(TRUE)
+  observeEvent(input$showInfo, {
+    openInfo(!openInfo())
+  })
+  
+  infoFile <- reactive({
+    if(openInfo()) {
+      includeHTML('./moreinfo.html')
+    } else {
+      NULL
+    }
+  })
+  
+  output$moreInfo <- renderUI({
+    infoFile()
+  })
+  
   beta_table_selector <- eventReactive(input$openTable, {
     ##
-
-    beta_file <- readRDS("./test.rds")
+    beta_file <- readRDS("./beta_coefficient_table.rds")
     beta_file_subset <- beta_file
     colnames(beta_file_subset) <- c("Row.number","Gene","Taxonomy.Level","Population","all","early","late","Mean.expression","Comparative.Viewer","Pseudoprogression.Plot")
     
     if(input$Level == "All"){
       beta_table_show = beta_file_subset
-      beta_table_show
+      beta_file_subset
     }else{
       beta_tabled_selected = beta_file_subset %>% filter(Taxonomy.Level == input$Level)
-      beta_table_show = beta_tabled_selected
-      beta_table_show
+      beta_tabled_selected
     }
   })
   
   observeEvent(input$openTable, {
+    openInfo(FALSE)
     ## ------ Render the selected peak table
     output$table <- DT::renderDataTable({
       ##
@@ -135,7 +156,6 @@ server <- function(input, output, session){
     },
     server = TRUE)
   })
-
   
   output$PseudoProgressionImageOverview <- renderUI({
     if(length(input$table_rows_selected) != 0){
@@ -176,10 +196,6 @@ server <- function(input, output, session){
         Population_edited_2 <- Population_edited
       }
       
-      
-      
-      
-      print(Population_edited)
       #if(Taxonomy == "Class"){
       # img(src = "https://sea-ad-single-cell-profiling.s3.amazonaws.com/MTG/RNAseq/pseudoprogression-plots/AHR/overview_subclass.jpg",width = "100%", height = "100%") 
       #}else{
