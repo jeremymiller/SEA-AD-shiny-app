@@ -17,5 +17,4 @@ Here is the link to the app, https://sea-ad.shinyapps.io/ad_gene_trajectories/.
 - [ ] Add population as a dropdown under subclass and supertype
 - [ ] Check on naming incosistencies between table and figure content (GABA vs Inh)
 - [ ] Correct Typo in description
-- [ ] Remove the serial numbers 1,2,3 in the descritpion or resize them
 
