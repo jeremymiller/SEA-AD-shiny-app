@@ -7,7 +7,7 @@ library(dplyr)
 library(data.table)
 library(DT)
 library(shinycssloaders)
-library(vroom)
+library(arrow)
 options(stringsAsFactors = F)
 
 css <- "
@@ -119,7 +119,7 @@ server <- function(input, output, session){
   
   beta_table_selector <- eventReactive(input$openTable, {
     ##
-    beta_file <- vroom("./beta_coefficient_table.csv")
+    beta_file <- read_feather('output.feather')
     beta_file_subset <- beta_file
     colnames(beta_file_subset) <- c("Row.number","Gene","Taxonomy.Level","Population","all","early","late","Mean.expression","Comparative.Viewer","Pseudoprogression.Plot")
     
