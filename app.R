@@ -19,6 +19,9 @@ div.dataTables_wrapper  div.dataTables_filter {
 "
 
 ui <- dashboardPage(
+
+  tags$head(includeHTML("google-analytics.html")),
+
   title = 'SEA-AD Gene Trajectories',
   ##
   dashboardHeader(title = div(h3("SEA-AD", style="margin: 0;"),h4("Gene Trajectories", style="margin: 0;"))),
