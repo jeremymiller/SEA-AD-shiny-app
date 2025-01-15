@@ -20,8 +20,6 @@ div.dataTables_wrapper  div.dataTables_filter {
 
 ui <- dashboardPage(
 
-  tags$head(includeHTML("google-analytics.html")),
-
   title = 'SEA-AD Gene Trajectories',
   ##
   dashboardHeader(title = div(h3("SEA-AD", style="margin: 0;"),h4("Gene Trajectories", style="margin: 0;"))),
@@ -63,6 +61,9 @@ ui <- dashboardPage(
               text-align: center;
               width: 500px;}"
         ),
+        
+      
+        
         ## This is a css hack to get text before the loading indicator
         ## It disappears with the loader
         HTML(".load-container::before {
@@ -86,8 +87,10 @@ ui <- dashboardPage(
         
       )
     ),
-    htmlOutput('moreInfo')
+    htmlOutput('moreInfo'),
+    tags$head(includeHTML("google-analytics.html")),
   ),
+  
 )
 
 ####################################################################################################
