@@ -125,8 +125,10 @@ server <- function(input, output, session){
   
   beta_table_selector <- eventReactive(input$openTable, {
     ##
-    beta_file <- read_feather('output.feather')
-    beta_file_subset <- beta_file
+    beta_file <- read_feather('output_new.feather')
+    colnames(beta_file)[which(colnames(beta_file) == "X")] <- "Row.number"
+    beta_file_subset <- beta_file[,c("Row.number","Gene","Taxonomy.Level","Population","Effect.size.across.all.of.pseudoprogression","Effect.size.across.early.pseudoprogression","Effect.size.across.late.pseudoprogression","Mean.expression..natural.log.UMIs.per.10k.plus.1.","Comparative.Viewer","Pseudoprogression.Plot")]
+    #beta_file_subset <- beta_file
     colnames(beta_file_subset) <- c("Row.number","Gene","Taxonomy.Level","Population","all","early","late","Mean.expression","Comparative.Viewer","Pseudoprogression.Plot")
     
     if(input$Level == "All"){
@@ -167,6 +169,7 @@ server <- function(input, output, session){
     if(length(input$table_rows_selected) != 0){
       s = input$table_rows_selected
       Gene <- beta_table_selector()[s, ]$Gene
+      print(paste0("https://sea-ad-single-cell-profiling.s3.amazonaws.com/MTG/RNAseq/pseudoprogression-plots/",Gene,"/overview_subclass.jpg",collapse= ""))
       img(src = paste0("https://sea-ad-single-cell-profiling.s3.amazonaws.com/MTG/RNAseq/pseudoprogression-plots/",Gene,"/overview_subclass.jpg",collapse= ""),
           width = "100%",
           height = "100%")
