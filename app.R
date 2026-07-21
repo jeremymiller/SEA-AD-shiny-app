@@ -181,9 +181,10 @@ server <- function(input, output, session){
     if (input$openTable == 0) {
       div(
         style = "text-align: center; padding: 50px 50px 0 50px;",
-        img(src = "SEA-AD-logo.png", style = "max-width: 400px; width: 80%;"),
         h2("SEA-AD Gene Trajectory Viewer"),
-        p("Welcome to the SEA-AD Gene Trajectory Viewer, a web application for exploring how genes change expression with increasing Alzheimer's Disease pathology in different cell types. Please select a taxonomy level on the left panel and click the green button to begin.")
+        h3("Welcome to the SEA-AD Gene Trajectory Viewer, a web application for exploring how genes change expression with increasing Alzheimer's Disease pathology in different cell types. Please select a taxonomy level on the left panel and click the green button to begin."),
+        br(),
+        img(src = "SEA-AD-logo.png", style = "max-width: 400px; width: 80%;")
       )
     } else {
       DT::dataTableOutput("table") %>%
