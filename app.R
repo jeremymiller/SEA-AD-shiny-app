@@ -1,3 +1,7 @@
+# I'm running this in Using R 4.3.2
+# Set-up the renv.lock file. This only needs to be done once
+
+
 library(shiny)
 library(readxl)
 library(shinydashboard)
@@ -28,6 +32,9 @@ ui <- dashboardPage(
   dashboardSidebar(
     verticalLayout(
       div(),
+      
+      h3("Get started now"),
+      
       h6("Please select an option and click open table to begin.", style='justify-self: center; padding-left: 10px; padding-right: 10px; padding-bottom: 0px;margin-bottom: 0px; text-align: center;'),
       ## Let the user filter tables to just one species
       selectInput("Level", "Taxonomy Level", choices=c("All","Class","Subclass","Supertype"), selected="Class", multiple=FALSE),
@@ -35,7 +42,35 @@ ui <- dashboardPage(
                    "Open beta coefficent table",
                    style = "color: #fff; background-color: #27ae60; border-color: #fff; padding: 10px 20px 10px px; margin: 5px 5px 5px 20px; "),
       ),
-    br(),
+    
+    HTML("<hr/>"),
+    
+    h4("New to this tool?"),
+    
+    actionButton(
+      "open_video_btn",
+      HTML("Watch this overview!"),
+      icon = icon("video"),
+      style = "font-size: 100%; 
+                            padding: 5px 5px; 
+                            width: 165px; /* Give it a specific width so margin: auto can work */
+                            display: block; /* Make it a block element */
+                            white-space: normal;",  
+      onclick = paste0("window.open('https://jeremymiller.github.io/SEA-AD-shiny-app/gene_trajectory_overview.mp4', '_blank');")
+    ),
+    
+    h4("Have suggestions?"),
+    
+    actionButton(
+      inputId = "email1",
+      icon = icon("envelope", lib = "font-awesome"),
+      a("PROVIDE FEEDBACK",
+        style = "color: #000000; border-color: #2e6da4; text-align: center;", 
+        href = "https://app.smartsheet.com/b/form/01c0ed3a74d14135bd68620a92bbd5ef")
+    ),
+    
+    HTML("<hr/>"),
+    
     htmlOutput("text1"),
     tags$head(tags$style("#text1{color: white;
                                  font-size: 12px;
@@ -50,6 +85,14 @@ ui <- dashboardPage(
     ),
   ##
   dashboardBody(
+    
+    ## NEW: favicon
+    tags$head(
+      tags$title("SEA-AD Gene Trajectories"),
+      tags$link(rel = "icon", type = "image/x-icon", href = "SEAAD.ico"),
+      tags$script(HTML("document.title = 'SEA-AD Gene Trajectories';")),
+    ),
+    
     ## Peak table
     fluidRow(
         tags$style(
@@ -127,9 +170,9 @@ server <- function(input, output, session){
     ##
     beta_file <- read_feather('output_new.feather')
     colnames(beta_file)[which(colnames(beta_file) == "X")] <- "Row.number"
-    beta_file_subset <- beta_file[,c("Row.number","Gene","Taxonomy.Level","Population","Effect.size.across.all.of.pseudoprogression","Effect.size.across.early.pseudoprogression","Effect.size.across.late.pseudoprogression","Mean.expression..natural.log.UMIs.per.10k.plus.1.","Comparative.Viewer","Pseudoprogression.Plot")]
+    beta_file_subset <- beta_file[,c("Gene","Taxonomy Level","Population","Effect size across all of pseudoprogression","Effect size across early pseudoprogression","Effect size across late pseudoprogression","Mean expression (natural log UMIs per 10k plus 1)","Comparative Viewer","Pseudoprogression Plot")]
     #beta_file_subset <- beta_file
-    colnames(beta_file_subset) <- c("Row.number","Gene","Taxonomy.Level","Population","all","early","late","Mean.expression","Comparative.Viewer","Pseudoprogression.Plot")
+    colnames(beta_file_subset) <- c("Gene","Taxonomy.Level","Population","all","early","late","Mean.expression","Comparative.Viewer","Pseudoprogression.Plots")
     
     if(input$Level == "All"){
       beta_table_show = beta_file_subset
@@ -202,7 +245,7 @@ server <- function(input, output, session){
       }else if(Population_edited == "Lamp5_Lhx6"){
         Population_edited_2 <- "Lamp5 Lhx6"
       }else{
-        Population_edited_2 <- Population_edited
+        Population_edited_2 <- gsub("/"," ",Population_edited)
       }
       
       #if(Taxonomy == "Class"){
