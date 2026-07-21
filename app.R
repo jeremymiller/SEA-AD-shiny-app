@@ -1,6 +1,4 @@
-# I'm running this in Using R 4.3.2
-# Set-up the renv.lock file. This only needs to be done once
-
+# This is run using R 4.3.2 with an renv.lock file as close to the app as possible.
 
 library(shiny)
 library(readxl)
@@ -12,7 +10,11 @@ library(data.table)
 library(DT)
 library(shinycssloaders)
 library(arrow)
+library(jsonlite)
 options(stringsAsFactors = F)
+
+## TOOL TIPS FOR THE de_table
+tooltip_data <- read.csv("table_column_definitions.csv", stringsAsFactors = FALSE)
 
 css <- "
 div.dataTables_wrapper  div.dataTables_filter {
@@ -23,7 +25,7 @@ div.dataTables_wrapper  div.dataTables_filter {
 "
 
 ui <- dashboardPage(
-
+  
   title = 'SEA-AD Gene Trajectories',
   ##
   dashboardHeader(title = div(h3("SEA-AD", style="margin: 0;"),h4("Gene Trajectories", style="margin: 0;"))),
@@ -31,58 +33,79 @@ ui <- dashboardPage(
   ##
   dashboardSidebar(
     verticalLayout(
-      div(),
+
+      h3("Get started now", style = "margin: 20px 15px 10px 15px;"),
       
-      h3("Get started now"),
-      
-      h6("Please select an option and click open table to begin.", style='justify-self: center; padding-left: 10px; padding-right: 10px; padding-bottom: 0px;margin-bottom: 0px; text-align: center;'),
+      p("Please select an option and click the green button to begin.", style = "margin: 0px 15px 5px 15px;"),
       ## Let the user filter tables to just one species
-      selectInput("Level", "Taxonomy Level", choices=c("All","Class","Subclass","Supertype"), selected="Class", multiple=FALSE),
+      
+      selectInput(
+        "Level",
+        tags$span("Taxonomy Level", style = "font-size: 16px;"),
+        choices = c("All", "Class", "Subclass", "Supertype"),
+        selected = "Class",
+        multiple = FALSE
+      ),
+      
       actionButton("openTable", 
                    "Open beta coefficent table",
-                   style = "color: #fff; background-color: #27ae60; border-color: #fff; padding: 10px 20px 10px px; margin: 5px 5px 5px 20px; "),
+                   style = "color: #fff; background-color: #27ae60; border-color: #fff; padding: 10px 20px 10px px; margin: 5px 5px 15px 20px; "),
+      
+      HTML("<p style='margin: 0px 20px;'><i>Hover over column names to see extended definitions.</i></p>"),
+      
+      HTML("<hr/>"),
+      
+      h4("New to this tool?", style = "margin: 0px 15px 10px 15px;"),
+      
+      actionButton(
+        "showInfo",
+        "Open/close application information", 
+        icon = icon("book"),
+        style = "font-size: 100%; 
+                            padding: 5px 5px; 
+                            width: 165px; /* Give it a specific width so margin: auto can work */
+                            display: block; /* Make it a block element */
+                            white-space: normal;"
       ),
-    
-    HTML("<hr/>"),
-    
-    h4("New to this tool?"),
-    
-    actionButton(
-      "open_video_btn",
-      HTML("Watch this overview!"),
-      icon = icon("video"),
-      style = "font-size: 100%; 
+      
+      actionButton(
+        "open_video_btn",
+        HTML("Watch this overview!"),
+        icon = icon("video"),
+        style = "font-size: 100%; 
                             padding: 5px 5px; 
                             width: 165px; /* Give it a specific width so margin: auto can work */
                             display: block; /* Make it a block element */
                             white-space: normal;",  
-      onclick = paste0("window.open('https://jeremymiller.github.io/SEA-AD-shiny-app/gene_trajectory_overview.mp4', '_blank');")
-    ),
-    
-    h4("Have suggestions?"),
-    
-    actionButton(
-      inputId = "email1",
-      icon = icon("envelope", lib = "font-awesome"),
-      a("PROVIDE FEEDBACK",
-        style = "color: #000000; border-color: #2e6da4; text-align: center;", 
-        href = "https://app.smartsheet.com/b/form/01c0ed3a74d14135bd68620a92bbd5ef")
-    ),
-    
-    HTML("<hr/>"),
-    
-    htmlOutput("text1"),
-    tags$head(tags$style("#text1{color: white;
-                                 font-size: 12px;
-                                 text-align: center;
-                                 }"
+        onclick = paste0("window.open('https://jeremymiller.github.io/SEA-AD-shiny-app/gene_trajectory_overview.mp4', '_blank');")
+      ),
+      
+      h4("Have suggestions?", style = "margin: 20px 15px 10px 15px;"),
+      
+      actionButton(
+        inputId = "email1",
+        icon = icon("envelope", lib = "font-awesome"),
+        a("PROVIDE FEEDBACK",
+          style = "color: #000000; border-color: #2e6da4; text-align: center;", 
+          href = "https://app.smartsheet.com/b/form/01c0ed3a74d14135bd68620a92bbd5ef")
+      ),
+      
+      HTML("<hr/>"),
+      
+      # htmlOutput("text1"),
+      # tags$head(tags$style("#text1{color: white;
+      #                              font-size: 12px;
+      #                              text-align: center;
+      #                              }"
+      # )
+      # ),
+      #div(
+      #  actionButton("showInfo","Show/Hide Info", style = "margin: 0px;"),
+      #  style="display: flex; align-content: center; justify-content: center; flex-wrap: wrap; padding-top: 10%"
+      #)
     )
-    ),
-    div(
-      actionButton("showInfo","Show/Hide Info", style = "margin: 0px;"),
-      style="display: flex; align-content: center; justify-content: center; flex-wrap: wrap; padding-top: 10%"
-    )
-    ),
+    
+  ),
   ##
   dashboardBody(
     
@@ -95,7 +118,7 @@ ui <- dashboardPage(
     
     ## Peak table
     fluidRow(
-        tags$style(
+      tags$style(
         HTML(
           ".dataTables_wrapper .dataTables_filter {
               float: none;
@@ -105,19 +128,19 @@ ui <- dashboardPage(
               width: 500px;}"
         ),
         
-      
+        
         
         ## This is a css hack to get text before the loading indicator
         ## It disappears with the loader
-        HTML(".load-container::before {
-              content: 'This might take a minute...';
-              position: absolute;
-              left: 45%;
-              text-align: center;
-             }
-             ")
+        # HTML(".load-container::before {
+        #       content: 'This might take a minute...';
+        #       position: absolute;
+        #       left: 45%;
+        #       text-align: center;
+        #      }
+        #      ")
       ),
-      DT::dataTableOutput('table') %>% withSpinner(color="#0dc5c1"),
+      uiOutput("table_ui"),
       width = 12,
       height = 120,
       solidHeader = T,
@@ -139,19 +162,33 @@ ui <- dashboardPage(
 ####################################################################################################
 server <- function(input, output, session){
   
-  output$text1 <- renderUI({
-    HTML(paste("<h4 style='padding-bottom: 0px; margin-bottom: 0px;'>Pseudo progression table column names</h4>",
-               "<h5 style='font-weight: bold'>All</h5> Beta coefficient across all of pseudoprogression",
-               "<h5 style='font-weight: bold'>Early</h5> Beta coefficient across early pseudoprogression",
-               "<h5 style='font-weight: bold'>Late</h5> Beta coefficient across late pseudoprogression",
-               "<h5 style='font-weight: bold'>Mean Expression</h5> (natural log UMIs per 10k plus 1)",
-               sep = "<hr/>"
-        ))
-  })
+  # output$text1 <- renderUI({
+  #   HTML(paste("<h4 style='padding-bottom: 0px; margin-bottom: 0px;'>Pseudo progression table column names</h4>",
+  #              "<h5 style='font-weight: bold'>All</h5> Beta coefficient across all of pseudoprogression",
+  #              "<h5 style='font-weight: bold'>Early</h5> Beta coefficient across early pseudoprogression",
+  #              "<h5 style='font-weight: bold'>Late</h5> Beta coefficient across late pseudoprogression",
+  #              "<h5 style='font-weight: bold'>Mean Expression</h5> (natural log UMIs per 10k plus 1)",
+  #              sep = "<hr/>"
+  #       ))
+  # })
   
-  openInfo <- reactiveVal(TRUE)
+  openInfo <- reactiveVal(FALSE)
   observeEvent(input$showInfo, {
     openInfo(!openInfo())
+  })
+  
+  output$table_ui <- renderUI({
+    if (input$openTable == 0) {
+      div(
+        style = "text-align: center; padding: 50px 50px 0 50px;",
+        img(src = "SEA-AD-logo.png", style = "max-width: 400px; width: 80%;"),
+        h2("SEA-AD Gene Trajectory Viewer"),
+        p("Welcome to the SEA-AD Gene Trajectory Viewer, a web application for exploring how genes change expression with increasing Alzheimer's Disease pathology in different cell types. Please select a taxonomy level on the left panel and click the green button to begin.")
+      )
+    } else {
+      DT::dataTableOutput("table") %>%
+        withSpinner(color = "#0dc5c1")
+    }
   })
   
   infoFile <- reactive({
@@ -169,7 +206,7 @@ server <- function(input, output, session){
   beta_table_selector <- eventReactive(input$openTable, {
     ##
     beta_file <- read_feather('output_new.feather')
-    colnames(beta_file)[which(colnames(beta_file) == "X")] <- "Row.number"
+    #colnames(beta_file)[which(colnames(beta_file) == "X")] <- "Row.number"
     beta_file_subset <- beta_file[,c("Gene","Taxonomy Level","Population","Effect size across all of pseudoprogression","Effect size across early pseudoprogression","Effect size across late pseudoprogression","Mean expression (natural log UMIs per 10k plus 1)","Comparative Viewer","Pseudoprogression Plot")]
     #beta_file_subset <- beta_file
     colnames(beta_file_subset) <- c("Gene","Taxonomy.Level","Population","all","early","late","Mean.expression","Comparative.Viewer","Pseudoprogression.Plots")
@@ -185,14 +222,39 @@ server <- function(input, output, session){
   
   observeEvent(input$openTable, {
     openInfo(FALSE)
+
     ## ------ Render the selected peak table
     output$table <- DT::renderDataTable({
       ##
+      data_df = beta_table_selector()
+      
+      ## Dynamically determine tool tip definitions
+      column_definitions <- sapply(colnames(data_df), function(col_name) {
+        # Find the matching tooltip from the loaded data
+        match <- tooltip_data[tooltip_data$column_names == col_name, "column_definitions"]
+        # If a match is not found, provide a default tooltip
+        if (length(match) == 0) {
+          return(paste("No definition available for", col_name))
+        }
+        return(match)
+      }, USE.NAMES = FALSE)
+      
+      ## Create the data table
       DT::datatable(
-        data = beta_table_selector(),
+        data = data_df,
         options = list(
           dom = 'tp',
-          pageLength = 10
+          pageLength = 10,
+          headerCallback = JS(
+            paste0(
+              "function(thead, data, start, end, display) {",
+              "  var tooltips = ", toJSON(column_definitions), ";",
+              "  $(thead).find('th').each(function(i) {",
+              "    this.setAttribute('title', tooltips[i]);",
+              "  });",
+              "}"
+            )
+          )
         ),
         filter = "top",
         selection = 'single',

@@ -1,0 +1,10 @@
+column_names,column_definitions
+Gene,Gene symbol
+Taxonomy.Level,Level of cell type granularity from broadest to finest (Class --> Subclass --> Supertype)
+Population,Human-readable name for cell type in [Taxonomy Level]
+all,Beta coefficient (magnitude of change) across all of pseudoprogression
+early,Beta coefficient (magnitude of change) across early pseudoprogression (low pathology)
+late,Beta coefficient (magnitude of change) across late pseudoprogression (high pathology)
+Mean.expression,Average gene expression (natural log UMIs per 10K plus 1)
+Comparative.Viewer,Link for selected Gene and Population in the SEA-AD Comparative Viewer
+Pseudoprogression.Plot,Link to an svg image with the complete set of all plots for selected Gene and Population
