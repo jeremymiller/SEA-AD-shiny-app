@@ -140,7 +140,10 @@ ui <- dashboardPage(
         #      }
         #      ")
       ),
-      uiOutput("table_ui"),
+      div(
+        style = "padding: 0 25px;",
+        uiOutput("table_ui")
+      ),
       width = 12,
       height = 120,
       solidHeader = T,
