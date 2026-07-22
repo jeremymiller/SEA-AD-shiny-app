@@ -28,12 +28,41 @@ ui <- dashboardPage(
   
   title = 'SEA-AD Gene Trajectories',
   ##
-  dashboardHeader(title = div(h3("SEA-AD", style="margin: 0;"),h4("Gene Trajectories", style="margin: 0;"))),
+  dashboardHeader(
+    title = tags$a(
+      href = "https://alleninstitute.org",
+      target = "_blank",
+      tags$img(src = "allen_institute_logo.svg", alt = "Allen Institute", height = "30")
+    ),
+    titleWidth = 230,
+    tags$li(
+      class = "dropdown app-title",
+      tags$span("SEA-AD Gene Trajectory Viewer")
+    ),
+    tags$li(
+      class = "dropdown app-nav-link",
+      tags$a(
+        href = "https://brain-map.org/consortia/sea-ad",
+        target = "_blank",
+        icon("brain", lib = "font-awesome"),
+        " SEA-AD.org"
+      )
+    ),
+    tags$li(
+      class = "dropdown app-nav-link",
+      tags$a(
+        href = "https://brain-map.org",
+        target = "_blank",
+        icon("globe"),
+        " Brain Map"
+      )
+    )
+  ),
   
   ##
   dashboardSidebar(
     verticalLayout(
-
+      
       h3("Get started now", style = "margin: 20px 15px 10px 15px;"),
       
       p("Please select an option and click the green button to begin.", style = "margin: 0px 15px 5px 15px;"),
@@ -92,17 +121,6 @@ ui <- dashboardPage(
       
       HTML("<hr/>"),
       
-      # htmlOutput("text1"),
-      # tags$head(tags$style("#text1{color: white;
-      #                              font-size: 12px;
-      #                              text-align: center;
-      #                              }"
-      # )
-      # ),
-      #div(
-      #  actionButton("showInfo","Show/Hide Info", style = "margin: 0px;"),
-      #  style="display: flex; align-content: center; justify-content: center; flex-wrap: wrap; padding-top: 10%"
-      #)
     )
     
   ),
@@ -114,6 +132,29 @@ ui <- dashboardPage(
       tags$title("SEA-AD Gene Trajectories"),
       tags$link(rel = "icon", type = "image/x-icon", href = "SEAAD.ico"),
       tags$script(HTML("document.title = 'SEA-AD Gene Trajectories';")),
+      tags$style(HTML("
+        .skin-blue .main-header .logo,
+        .skin-blue .main-header .navbar { background-color: #252525 !important; }
+        .main-sidebar { background-color: #0E3D5A !important; }
+        .skin-blue .main-header .logo:hover,
+        .skin-blue .main-header .navbar .sidebar-toggle:hover,
+        .app-nav-link > a:hover { background-color: rgba(255,255,255,0.15) !important; }
+        .main-header { position: relative; }
+        .main-header .logo,
+        .main-header .sidebar-toggle { display: flex !important; align-items: center; }
+        .main-header .logo { justify-content: center; height: 60px !important; padding: 0 18px !important; }
+        .main-header .navbar { position: static; overflow: visible; min-height: 60px !important; height: 60px !important; }
+        .main-header .sidebar-toggle { height: 60px !important; padding: 0 18px !important; color: #ffffff !important; }
+        .main-header .navbar .nav > li > a { color: #ffffff !important; padding: 20px 15px !important; line-height: 20px !important; }
+        .app-title { position: absolute !important; top: 0; left: 50%; transform: translateX(-50%); height: 60px; line-height: 60px; z-index: 900; margin: 0; padding: 0; color: #ffffff; font-size: 24px; font-weight: 700; white-space: nowrap; pointer-events: none; max-width: 60vw; overflow: hidden; text-overflow: ellipsis; }
+        .app-title > span { display: block; }
+        .app-nav-link > a { font-size: 14px; border-radius: 3px; }
+        .main-sidebar, .left-side { padding-top: 70px !important; }
+        @media (max-width: 900px) {
+          .app-title { font-size: 16px; max-width: calc(100vw - 200px); }
+          .app-nav-link { display: none !important; }
+        }
+      "))
     ),
     
     ## Peak table
@@ -128,17 +169,6 @@ ui <- dashboardPage(
               width: 500px;}"
         ),
         
-        
-        
-        ## This is a css hack to get text before the loading indicator
-        ## It disappears with the loader
-        # HTML(".load-container::before {
-        #       content: 'This might take a minute...';
-        #       position: absolute;
-        #       left: 45%;
-        #       text-align: center;
-        #      }
-        #      ")
       ),
       div(
         style = "padding: 0 25px;",
@@ -165,16 +195,6 @@ ui <- dashboardPage(
 ####################################################################################################
 server <- function(input, output, session){
   
-  # output$text1 <- renderUI({
-  #   HTML(paste("<h4 style='padding-bottom: 0px; margin-bottom: 0px;'>Pseudo progression table column names</h4>",
-  #              "<h5 style='font-weight: bold'>All</h5> Beta coefficient across all of pseudoprogression",
-  #              "<h5 style='font-weight: bold'>Early</h5> Beta coefficient across early pseudoprogression",
-  #              "<h5 style='font-weight: bold'>Late</h5> Beta coefficient across late pseudoprogression",
-  #              "<h5 style='font-weight: bold'>Mean Expression</h5> (natural log UMIs per 10k plus 1)",
-  #              sep = "<hr/>"
-  #       ))
-  # })
-  
   openInfo <- reactiveVal(FALSE)
   observeEvent(input$showInfo, {
     openInfo(!openInfo())
@@ -187,11 +207,29 @@ server <- function(input, output, session){
         h2("SEA-AD Gene Trajectory Viewer"),
         h3("Welcome to the SEA-AD Gene Trajectory Viewer, a web application for exploring how genes change expression with increasing Alzheimer's Disease pathology in different cell types. Please select a taxonomy level on the left panel and click the green button to begin."),
         br(),
-        img(src = "SEA-AD-logo.png", style = "max-width: 400px; width: 80%;")
+        img(src = "SEA-AD-logo.png", style = "max-width: 400px; width: 80%;"),
+        br(),
+        br(),
+        HTML("<i>The look and feel of the app has been refreshed, but the content is <b>unchanged</b>.</i>")
       )
     } else {
-      DT::dataTableOutput("table") %>%
-        withSpinner(color = "#0dc5c1")
+      tagList(
+        DT::dataTableOutput("table") %>%
+          withSpinner(color = "#0dc5c1"),
+        
+        div(
+          style = "display: flex;  align-items: center;  gap: 12px;  margin-top: 15px;  margin-bottom: 20px;",
+          downloadButton(
+            "downloadOutput",
+            "Download filtered table"
+          ),
+          
+          p(
+            "   |     To download an image, right click on it and select 'Save image as...'",
+            style = "margin: 0;"
+          )
+        )
+      )
     }
   })
   
@@ -324,13 +362,58 @@ server <- function(input, output, session){
     }
   })
   
-  ## ------ Download user selection table
-  #output$downloadOutput <- downloadHandler(
-  #  filename = function(){paste0("CERP_peaks", input$speciesInput, "_", input$datasetInput, "_", input$annotationInput, ".csv")}, 
-  #  content = function(fname){
-  #    write.csv(peak_table_selector()[input$table_rows_selected,], fname, row.names=F)
-  # }
-  #)
+  ## ------ Download currently filtered table
+  output$downloadOutput <- downloadHandler(
+    
+    filename = function() {
+      data_df <- beta_table_selector()
+      filtered_rows <- input$table_rows_all
+      
+      req(length(filtered_rows) > 0)
+      
+      taxonomy_level <- data_df[filtered_rows[1], "Taxonomy.Level"]
+      
+      paste0(
+        "selected_",
+        taxonomy_level,
+        "_rows.csv"
+      )
+    },
+    
+    content = function(fname) {
+      data_df <- beta_table_selector()
+      filtered_rows <- input$table_rows_all
+      
+      req(length(filtered_rows) > 0)
+      
+      download_df <- data_df[filtered_rows, , drop = FALSE]
+      
+      ## Retain only the URL inside each HTML href attribute
+      extract_url <- function(x) {
+        x = gsub("' target='_blank'>Comparative Viewer</a>","",x)
+        x = gsub("' target='_blank'>Pseudoprogression Plot</a>","",x)
+        gsub("<a href='","",x)
+      }
+      
+      download_df$Comparative.Viewer <- extract_url(
+        download_df$Comparative.Viewer
+      )
+      
+      download_df$Pseudoprogression.Plots <- extract_url(
+        download_df$Pseudoprogression.Plots
+      )
+      
+      ## Remove the taxonomy-level column
+      download_df$Taxonomy.Level <- NULL
+      
+      write.csv(
+        download_df,
+        fname,
+        row.names = FALSE,
+        na = ""
+      )
+    }
+  )
   
 }
 
